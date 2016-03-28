@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class MyotiukMain {
 	public static void main(String[] args) {
 		
-		File file = new File("src/main/java/words-333333.txt");
+		File file = new File("src/words-333333.txt");
 		StringBuilder words = new StringBuilder();
 		try(BufferedReader fr = new BufferedReader(new FileReader(file));){
 			String strLine = null;
