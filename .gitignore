@@ -10,7 +10,7 @@ tmp/
 local.properties
 .settings/
 .loadpath
-target/
+/target
 
 # Eclipse Core
 .project
