@@ -1,5 +1,6 @@
 package com.java.myrotiuk.rway_trie;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,17 +19,19 @@ public class MyTrie implements Trie {
 
 	private static class Node {
 		int weight = 0;
-		String substr;
+		// String substr;
 		Node[] next = new Node[R];
 	}
 
 	@Override
 	/**
-	 * Method for adding into Trie pair(word and length of word - weight)  
-	 * @param tuple holder for word and weight
+	 * Method for adding into Trie pair(word and length of word - weight)
+	 * 
+	 * @param tuple
+	 *            holder for word and weight
 	 */
 	public void add(Tuple tuple) {
-		if(!tuple.getWord().matches("[a-z]+")){
+		if (!tuple.getWord().matches("[a-z]+")) {
 			throw new IllegalArgumentException("wrong word");
 		}
 		root = put(root, tuple.getWord(), tuple.getWeight(), 0);
@@ -49,11 +52,13 @@ public class MyTrie implements Trie {
 	}
 
 	@Override
-    /**
-     * Method for checking if there are such word
-     * @param word is a word to check 
-     * @return true if there is such otherwise false
-     */
+	/**
+	 * Method for checking if there are such word
+	 * 
+	 * @param word
+	 *            is a word to check
+	 * @return true if there is such otherwise false
+	 */
 	public boolean contains(String word) {
 		Node x = get(root, word, 0);
 		if (x == null) {
@@ -83,11 +88,13 @@ public class MyTrie implements Trie {
 	}
 
 	@Override
-    /**
-     * Method for deleting specific word
-     * @param word is a word to delete
-     * @return true if deletion was success otherwise false
-     */
+	/**
+	 * Method for deleting specific word
+	 * 
+	 * @param word
+	 *            is a word to delete
+	 * @return true if deletion was success otherwise false
+	 */
 	public boolean delete(String word) {
 		Node refRoot = root;
 		Node x = delete(root, refRoot, word, 0);
@@ -147,94 +154,189 @@ public class MyTrie implements Trie {
 		return tmp;
 	}
 
+	/**
+	 * Method that iterate through all words that begin with specific prefix
+	 * using BFS(Breadth-first search)
+	 * 
+	 * @param pref
+	 *            prefix for words that you want to choose
+	 * @return Iterable with all words with specific prefix
+	 */
+	public Iterable<String> wordsWithPrefix(String prefix) {
+
+		return new Iterable<String>() {
+
+			@Override
+			public Iterator<String> iterator() {
+
+				return new Iterator<String>() {
+					Queue<Node> checkNodes = new LinkedList<Node>();
+					Queue<String> checkPrefix = new LinkedList<>();
+					Node x = null;
+					boolean firstIteration = true;
+					boolean keep = true;
+					char charToStart = 0;
+					Node currentX = null;
+					String currentPrefix = "";
+					String prevResult = null;
+					{
+						x = get(root, prefix, 0);
+						checkPrefix.offer(prefix.toString());
+						checkNodes.offer(x);
+					}
+
+					public boolean hasNext() {
+						if (x == null)
+							return false;
+						return !checkNodes.isEmpty();
+					}
+
+					public String next() {
+						String result = "";
+						if (firstIteration) {
+							if (x.weight != 0) {
+								firstIteration = false;
+								return prefix.toString();
+							}
+						}
+
+						point: while (true) {
+							if (keep) {
+								currentX = checkNodes.remove();
+								currentPrefix = checkPrefix.remove();
+							}
+
+							for (char c = charToStart; c < R; c++) {
+								if (currentX.next[c] != null) {
+									char charToAdd = (char) (c + 'a');
+									String nodePref = currentPrefix + charToAdd;
+									checkNodes.offer(currentX.next[c]);
+									checkPrefix.offer(nodePref);
+									if (currentX.next[c].weight != 0) {
+										if (c + 1 < R) {
+											charToStart = (char) (c + 1);
+											keep = false;
+										} else {
+											charToStart = 0;
+											keep = true;
+										}
+
+										if (prevResult == null) {
+											prevResult = nodePref;
+										} else if (prevResult != null) {
+											result = nodePref;//
+											String tmp = result;
+											result = prevResult;
+											prevResult = tmp;
+											break point;//
+										}
+
+									}
+								}
+							}
+							if (checkNodes.isEmpty()) {
+								result = prevResult;//
+								break point;
+							}
+							charToStart = 0;
+							keep = true;
+						}
+						return result;
+					}
+				};
+			}
+		};
+	}
 	@Override
-    /**
-     * Method that iterate through all words using BFS(Breadth-first search) 
-     * @return Iterable with all words
-     */
+	/**
+	 * Method that iterate through all words using BFS(Breadth-first search)
+	 * 
+	 * @return Iterable with all words
+	 */
 	public Iterable<String> words() {
 		return wordsWithPrefix("");
 	}
 
-    /**
-     * Method that iterate through all words that begin with specific 
-     * prefix using BFS(Breadth-first search)
-     * @param pref prefix for words that you want to choose
-     * @return Iterable with all words with specific prefix
-     */
+	/**
+	 * Method that iterate through all words that begin with specific prefix
+	 * using BFS(Breadth-first search)
+	 * 
+	 * @param pref
+	 *            prefix for words that you want to choose
+	 * @return Iterable with all words with specific prefix
+	 */
 	/*public Iterable<String> wordsWithPrefix(String prefix) {
-		Queue<String> results = new LinkedList<String>();
-		Node x = get(root, prefix, 0);
-		collect(x, new StringBuilder(prefix), results);
-		return results;
-	}
-
-	private void collect(Node x, StringBuilder prefix, Queue<String> results) {
-		if (x == null)
-			return;
-		Queue<Node> myNodes = new LinkedList<Node>();
-		x.substr = prefix.toString();
-		myNodes.offer(x);
-		if (x.weight != 0)
-			results.offer(prefix.toString());
-		while (!myNodes.isEmpty()) {
-			Node currentX = myNodes.remove();
-			for (char c = 0; c < R; c++) {
-				if (currentX.next[c] != null) {
-					char charToAdd = (char) (c + 'a');
-					currentX.next[c].substr = currentX.substr + charToAdd;
-					if (currentX.next[c].weight != 0) {
-						results.offer(currentX.next[c].substr);
-					}
-					myNodes.offer(currentX.next[c]);
+	Queue<String> results = new LinkedList<String>();
+	Node x = get(root, prefix, 0);
+	collect(x, new StringBuilder(prefix), results);
+	return results;
+}
+private void collect(Node x, StringBuilder prefix, Queue<String> results) {
+	if (x == null)
+		return;
+	Queue<Node> myNodes = new LinkedList<Node>();
+	x.substr = prefix.toString();
+	myNodes.offer(x);
+	if (x.weight != 0)
+		results.offer(prefix.toString());
+	while (!myNodes.isEmpty()) {
+		Node currentX = myNodes.remove();
+		for (char c = 0; c < R; c++) {
+			if (currentX.next[c] != null) {
+				char charToAdd = (char) (c + 'a');
+				currentX.next[c].substr = currentX.substr + charToAdd;
+				if (currentX.next[c].weight != 0) {
+					results.offer(currentX.next[c].substr);
 				}
+				myNodes.offer(currentX.next[c]);
 			}
 		}
 	}
+}
 */
-	
-	public Iterable<String> wordsWithPrefix(String prefix) {
-		Queue<String> results = new LinkedList<String>();
-		Node x = get(root, prefix, 0);
-		collect(x, new StringBuilder(prefix), results);
-		return results;
-	}
+/*
+public Iterable<String> wordsWithPrefix(String prefix) {
+	Queue<String> results = new LinkedList<String>();
+	Node x = get(root, prefix, 0);
+	collect(x, new StringBuilder(prefix), results);
+	return results;
+}
 
-	private void collect(Node x, StringBuilder prefix, Queue<String> results) {
-		if (x == null)
-			return;
-		Queue<Node> myNodes = new LinkedList<Node>();
-		Queue<String> myPrefix = new LinkedList<>();
-		//x.substr = prefix.toString();
-		myPrefix.offer(prefix.toString());
-		myNodes.offer(x);
-		if (x.weight != 0)
-			results.offer(prefix.toString());
-		while (!myNodes.isEmpty()) {
-			Node currentX = myNodes.remove();
-			String currentPrefix = myPrefix.remove();
-			for (char c = 0; c < R; c++) {
-				if (currentX.next[c] != null) {
-					char charToAdd = (char) (c + 'a');
-					String nodePref = currentPrefix + charToAdd; 
-					//currentPrefix =  + 
-					
-					//currentX.next[c].substr = currentX.substr + charToAdd;
-					if (currentX.next[c].weight != 0) {
-						results.offer(nodePref);//currentPrefix);//currentX.next[c].substr);
-					}
-					myNodes.offer(currentX.next[c]);
-					myPrefix.add(nodePref);//currentPrefix);
+private void collect(Node x, StringBuilder prefix, Queue<String> results) {
+	if (x == null)
+		return;
+	Queue<Node> myNodes = new LinkedList<Node>();
+	Queue<String> myPrefix = new LinkedList<>();
+	//x.substr = prefix.toString();
+	myPrefix.offer(prefix.toString());
+	myNodes.offer(x);
+	if (x.weight != 0)
+		results.offer(prefix.toString());
+	while (!myNodes.isEmpty()) {
+		Node currentX = myNodes.remove();
+		String currentPrefix = myPrefix.remove();
+		for (char c = 0; c < R; c++) {
+			if (currentX.next[c] != null) {
+				char charToAdd = (char) (c + 'a');
+				String nodePref = currentPrefix + charToAdd; 
+				//currentPrefix =  + 
+				
+				//currentX.next[c].substr = currentX.substr + charToAdd;
+				if (currentX.next[c].weight != 0) {
+					results.offer(nodePref);//currentPrefix);//currentX.next[c].substr);
 				}
+				myNodes.offer(currentX.next[c]);
+				myPrefix.add(nodePref);//currentPrefix);
 			}
 		}
 	}
-	
+}*/
 	@Override
-    /**
-     * Method for getting number of words that in our data structure
-     * @return size of our data structure
-     */
+	/**
+	 * Method for getting number of words that in our data structure
+	 * 
+	 * @return size of our data structure
+	 */
 	public int size() {
 		return n;
 	}

@@ -105,7 +105,7 @@ public class PrefixMatches {
 			throw new IllegalArgumentException("Length of prefix less then 2");
 	}
 	
-	private Iterable<String> getWordsWithPrefix(String pref, final int kk){
+	/*private Iterable<String> getWordsWithPrefix(String pref, final int kk){
 		Queue<String> myWords = (Queue<String>)trie.wordsWithPrefix(pref);
 		return new Iterable<String>(){
 			public Iterator<String> iterator(){
@@ -138,6 +138,60 @@ public class PrefixMatches {
 					
 					public String next(){
 						String word = myWords.poll();
+						return word;
+					}
+				};
+			}
+		};
+	}*/
+		
+	private Iterable<String> getWordsWithPrefix(String pref, final int kk) {
+
+		return new Iterable<String>() {
+			public Iterator<String> iterator() {
+				
+				return new Iterator<String>() {
+					Iterator<String> iter = trie.wordsWithPrefix(pref).iterator();
+					int currentLength = 0;
+					int prevLength = 0;
+					boolean setLength = true;
+					int countLengths = 0;
+					String word = null;
+					String nextWord = null;
+					public boolean hasNext(){
+//						if(countLengths > kk - 1){
+//							return false;
+//						}
+//						if(countLengths != kk +1){
+//							return true;
+//						}else if(countLengths == kk +1){
+//							return false;
+//						}
+						
+//						word = iter.next();
+//						currentLength = word.length();
+
+//						if(word.length() != prevLength){
+//							prevLength = currentLength;
+//							countLengths ++;
+//						}
+						if(countLengths == kk){
+							return false;
+						}
+						return iter.hasNext();
+					}
+					public String next(){
+						String word = iter.next();
+						currentLength = word.length();
+						if(setLength){
+						prevLength = currentLength;
+						setLength = false;
+						}
+						if(prevLength != currentLength){
+							countLengths++;
+							prevLength = currentLength;
+						}
+						//nextWord = iter.next();
 						return word;
 					}
 				};

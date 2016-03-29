@@ -17,7 +17,7 @@ public class TestMyTrie {
 	}
 
 	@Test
-	public void testAdd() {// of and  	cat that  all above under";
+	public void shouldReturnCorrectSuizeWhenAddedThreeElement() {// of and  	cat that  all above under";
 		trie.add(new Tuple("the", "the".length()));
 		trie.add(new Tuple("cat", "cat".length()));
 		trie.add(new Tuple("dog", "dog".length()));
@@ -49,7 +49,10 @@ public class TestMyTrie {
 		trie.add(new Tuple("me", "me".length()));
 		trie.add(new Tuple("world", "world".length()));
 		int i = 0;
-		for(String words : trie.words()){
+		Iterable<String> iter = trie.words();
+		
+		//assertArrayEquals(expecteds, actuals);
+		for(String words : iter){
 			if(i == 0){
 				assertEquals("me", words);
 				i++;

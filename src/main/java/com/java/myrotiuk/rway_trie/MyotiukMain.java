@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class MyotiukMain {
 	public static void main(String[] args) {
 		
-		File file = new File("src/words-333333.txt");
+		File file = new File("src/main/java/words-333333.txt");
 		StringBuilder words = new StringBuilder();
 		try(BufferedReader fr = new BufferedReader(new FileReader(file));){
 			String strLine = null;
@@ -32,9 +32,35 @@ public class MyotiukMain {
 		
 		PrefixMatches pm3 = new PrefixMatches(new MyTrie());
 		System.out.println("number words that was added to our dictionary:"+pm3.add(finalWords));
-		for(String result: pm3.wordsWithPrefix("ha",77)){
+		for(String result: pm3.wordsWithPrefix("had",1)){
 			System.out.println(result);
 		}
+	
+//		
+		Trie trie = new MyTrie();
+		trie.add(new Tuple("a", 1));
+//		trie.add(new Tuple("ab", 1));
+//		trie.add(new Tuple("ac", 1));
+//		trie.add(new Tuple("ah", 1));
+//		trie.add(new Tuple("az", 1));
+//		trie.add(new Tuple("ad", 1));
+//		trie.add(new Tuple("abc", 1));
+//		trie.add(new Tuple("abcd", 1));
+//		trie.add(new Tuple("abcde", 1));
+//		
+//		System.out.println(trie.contains("aa"));
+		int count = 0;
+		for(String r: trie.words()){//.wordsWithPrefix("a")){
+			System.out.println(r);
+			count++;
+			try {
+				Thread.currentThread().sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+//		System.out.println(count);
 		
 	}
 }
