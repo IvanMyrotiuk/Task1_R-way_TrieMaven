@@ -248,7 +248,7 @@ public class MyRwayTrie implements Trie {
 			}
 		};
 	}
-	
+
 	@Override
 	/**
 	 * Method that iterate through all words using BFS(Breadth-first search)
